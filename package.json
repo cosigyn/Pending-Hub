@@ -4,12 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "rbxtsc",
+    "build": "rojo build -o model.rbxmx",
+    "compile": "rbxtsc",
     "watch": "rbxtsc -w"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "@rbxts/compiler-types": "^2.1.1-types.0",
     "@rbxts/types": "^1.0.714",
@@ -23,8 +24,11 @@
     "typescript": "^4.9.5"
   },
   "dependencies": {
+    "@rbxts/react-roblox": "^0.2.0",
     "@rbxts/reflex": "^4.2.0",
     "@rbxts/remo": "^1.2.2",
+    "@rbxts/ripple": "^0.7.0",
+    "@rbxts/roact": "npm:@rbxts/react-ts@^1.0.1",
     "@rbxts/services": "^1.5.1"
   }
 }

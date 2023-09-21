@@ -1,11 +1,4 @@
-interface PendingObject {
-	UserId: string;
-	UserName: string;
-	Defender: boolean;
-	Raider: boolean;
-	AccountAge: number;
-	PendTime: number;
-}
+import { PendingObject } from "../shared/slices";
 
 export class PendingQueueService {
 	private static instance: PendingQueueService;

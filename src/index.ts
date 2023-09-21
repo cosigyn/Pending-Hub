@@ -20,7 +20,7 @@
 
 export const config: {
 	defenderGroupIds: number[];
-	raiderGroupIds: number[];
+	raiderGroupIds?: number[];
 	autoAcceptDefenders: boolean;
 	autoAcceptRaiders: boolean;
 	autoAcceptOldestPending: boolean;
@@ -28,9 +28,13 @@ export const config: {
 	autoDeclineNewAccounts: boolean;
 	minimumAccountAge: number;
 	maximumPlayerCount: number;
+
+	adminGroupId: number;
+	adminRank: number;
+	admins?: number[];
 } = {
+	//required
 	defenderGroupIds: [],
-	raiderGroupIds: [],
 	autoAcceptDefenders: true,
 	autoAcceptRaiders: true,
 	autoAcceptOldestPending: true,
@@ -38,4 +42,9 @@ export const config: {
 	autoDeclineNewAccounts: true,
 	minimumAccountAge: 0,
 	maximumPlayerCount: 0,
+	adminGroupId: 0,
+	adminRank: 0,
+	// not required
+	admins: [],
+	raiderGroupIds: [],
 };
