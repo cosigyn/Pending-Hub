@@ -1,6 +1,5 @@
 import Roact from "@rbxts/roact";
 import { IS_PLUGIN } from "../../shared/constants";
-import { store } from "../store";
 
 interface LayerProps {
 	displayOrder?: number;
