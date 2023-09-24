@@ -4,9 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "rojo build -o model.rbxmx",
-    "compile": "rbxtsc",
-    "watch": "rbxtsc -w"
+    "build": "rbxtsc --rojo build.project.json && rojo build -o model.rbxmx build.project.json",
+    "serve": "rojo serve serve.project.json",
+    "compile": "rbxtsc --rojo build.project.json",
+    "watch": "rbxtsc -w --rojo serve.project.json"
   },
   "keywords": [],
   "author": "",
@@ -24,6 +25,9 @@
     "typescript": "^4.9.5"
   },
   "dependencies": {
+    "@rbxts/object-utils": "^1.0.4",
+    "@rbxts/pretty-react-hooks": "^0.2.1",
+    "@rbxts/react-reflex": "^0.2.0",
     "@rbxts/react-roblox": "^0.2.0",
     "@rbxts/reflex": "^4.2.0",
     "@rbxts/remo": "^1.2.2",

@@ -297,7 +297,7 @@ local function Layer(_param)
 	local displayOrder = _param.displayOrder
 	local children = _param.children
 	local _result
-	if IS_PLUGIN ~= nil then
+	if IS_PLUGIN == true then
 		local _attributes = {
 			BackgroundTransparency = 1,
 			Size = UDim2.new(1, 0, 1, 0),
