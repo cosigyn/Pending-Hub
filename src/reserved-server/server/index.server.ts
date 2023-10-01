@@ -1,9 +1,10 @@
 import { config } from "index";
 import { GroupService, MessagingService, Players } from "@rbxts/services";
 import { store } from "./store";
-import { isAdmin, selectPendingPlayers } from "reserved-server/shared/selectors";
 import { PendingObject } from "reserved-server/shared/slices";
 import { Condition } from "./condition";
+import { deleteServer } from "shared/serverService";
+import { Command, JoinRequest, JoinRequestResponse } from "shared/commandTypes";
 
 for (const admin of config.admins ?? []) {
 	store.addAdmin(admin);
@@ -19,35 +20,124 @@ function checkAdmin(player: Player) {
 Players.PlayerAdded.Connect(checkAdmin);
 Players.GetPlayers().forEach(checkAdmin);
 
-MessagingService.SubscribeAsync(`@CW-PendHub/JoinRequest/${game.PrivateServerId}`, (message) => {
-	const data = message.Data as PendingObject;
-	const result = Condition.checkAll(data);
-	if (result.decision === "approve") {
-		approvePlayer(data, result.message);
-	} else if (result.decision === "reject") {
-		rejectPlayer(data, result.message);
+function getPlayerRank(userId: number) {
+	const groups = GroupService.GetGroupsAsync(userId);
+	let rank = "Mercenary";
+	let defender = false;
+	let raider = false;
+	let admin = false;
+
+	if (config.admins?.includes(userId)) {
+		admin = true;
 	} else {
-		store.addPendingPlayer(data);
+		for (const group of groups) {
+			if (group.Id === config.adminGroupId) {
+				if (group.Rank >= config.adminRank) {
+					admin = true;
+				}
+				break;
+			}
+		}
+	}
+
+	if (admin) {
+		return { rank: "Admin", defender: true, raider: true, admin: true };
+	}
+
+	for (const group of groups) {
+		if (config.raiderGroupIds?.includes(group.Id)) {
+			raider = true;
+			rank = group.Name;
+			break;
+		}
+	}
+
+	const mainGroup = groups.find((group) => {
+		if (group.Id !== config.defenderGroupIds[0]) {
+			return;
+		}
+		rank = group.Role;
+		defender = true;
+		return true;
+	});
+
+	if (mainGroup !== undefined) {
+		return { rank, defender, raider };
+	}
+	for (const group of groups) {
+		if (config.defenderGroupIds.includes(group.Id)) {
+			rank = group.Name;
+			defender = true;
+			break;
+		}
+	}
+
+	return { rank, defender, raider };
+}
+
+MessagingService.SubscribeAsync("@CW-PendHub/reserved", (message) => {
+	const command = message.Data as Command;
+	if (command.privateServerId !== game.PrivateServerId) return;
+	switch (command.method) {
+		case "join-request/submit": {
+			const joinRequest = command.data as JoinRequest;
+			const { rank, defender, raider, admin } = getPlayerRank(joinRequest.userId);
+
+			const pendingObject: PendingObject = {
+				UserId: tostring(joinRequest.userId),
+				UserName: joinRequest.userName,
+				Defender: defender,
+				Raider: raider,
+				AccountAge: joinRequest.accountAge,
+				PendTime: message.Sent,
+				Rank: rank,
+			};
+
+			if (admin) {
+				joinRequestResponse(pendingObject, true, "This account is an admin.");
+				return;
+			}
+			const result = Condition.checkAll(pendingObject);
+			if (result.decision === "approve") {
+				joinRequestResponse(pendingObject, true, result.message);
+			} else if (result.decision === "reject") {
+				joinRequestResponse(pendingObject, false, result.message);
+			} else {
+				store.addPendingPlayer(pendingObject);
+			}
+
+			break;
+		}
+		case "join-request/cancel": {
+			const joinRequest = command.data as { userId: number };
+			store.removePendingPlayer(joinRequest as unknown as PendingObject);
+			break;
+		}
 	}
 });
 
-MessagingService.SubscribeAsync(`@CW-PendHub/CancelJoinRequest/${game.PrivateServerId}`, (message) => {
-	const data = message.Data as PendingObject; // In practice, this can be { UserId: number }
-	store.removePendingPlayer(data);
+function joinRequestResponse(data: PendingObject, accept?: boolean, message?: string) {
+	MessagingService.PublishAsync(`@CW-PendHub/public`, {
+		privateServerId: game.PrivateServerId,
+		method: "join-request/response",
+		data: {
+			userId: data.UserId,
+			accept,
+			message,
+		} as unknown as JoinRequestResponse,
+	} as Command);
+}
+
+game.BindToClose(() => {
+	MessagingService.PublishAsync(`@CW-PendHub/public`, {
+		privateServerId: game.PrivateServerId,
+		method: "server/update",
+		//TODO: this should bulk decline or something
+	} as Command);
+
+	deleteServer(game.PrivateServerId);
+	task.wait(10);
 });
-
-function rejectPlayer(data: PendingObject, message?: string) {
-	MessagingService.PublishAsync(`@CW-PendHub/RejectJoinRequest/${game.PrivateServerId}`, {
-		UserId: data.UserId,
-		message,
-	});
-}
-
-function approvePlayer(data: PendingObject, message?: string) {
-	MessagingService.PublishAsync(`@CW-PendHub/ApproveJoinRequest/${game.PrivateServerId}`, {
-		UserId: data.UserId,
-	});
-}
 
 // Condition 1: Account age
 new Condition(

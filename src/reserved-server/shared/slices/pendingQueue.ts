@@ -1,5 +1,5 @@
 import { createProducer } from "@rbxts/reflex";
-import { PendingObject } from "../../types/types";
+import { PendingObject } from "../../../shared/types";
 
 export interface PendingState {
 	readonly [player: number]: PendingObject;
