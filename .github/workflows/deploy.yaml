@@ -1,0 +1,34 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2.3.4
+
+      - name: Install Aftman
+        run: |
+          wget https://github.com/LPGhatguy/aftman/releases/download/v0.2.5/aftman-0.2.5-linux-x86_64.zip
+          unzip aftman-0.2.5-linux-x86_64.zip
+          ./aftman self-install
+          echo "$HOME/.aftman/bin" >> $GITHUB_PATH
+
+      - name: Install Aftman dependencies
+        run: aftman install --no-trust-check
+
+      - name: Install NPM dependencies
+        uses: bahmutov/npm-install@v1.7.4
+
+      - name: Compile and Build Source Files
+        run: npm run build
+
+      - name: Upload to Roblox
+        run: rbxcloud assets update --api-key "${{ secrets.OPEN_CLOUD_API_KEY }}" --filepath "model.rbxmx" --asset_id <ASSET_ID>

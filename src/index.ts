@@ -16,23 +16,11 @@
 
 */
 
+import { Config } from "startup.server";
+
 // Configuration
 
-export const config: {
-	defenderGroupIds: number[];
-	raiderGroupIds?: number[];
-	autoAcceptDefenders: boolean;
-	autoAcceptRaiders: boolean;
-	autoAcceptOldestPending: boolean;
-	autoDeclineMercenaries: boolean;
-	autoDeclineNewAccounts: boolean;
-	minimumAccountAge: number;
-	maximumPlayerCount: number;
-
-	adminGroupId: number;
-	adminRank: number;
-	admins?: number[];
-} = {
+export const config: Config = {
 	//required
 	defenderGroupIds: [],
 	autoAcceptDefenders: true,
@@ -47,4 +35,6 @@ export const config: {
 	// not required
 	admins: [],
 	raiderGroupIds: [],
+	gamePlaceId: 0,
+	loadingScreen: undefined,
 };

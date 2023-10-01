@@ -4,10 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "rbxtsc --rojo build.project.json && rojo build -o model.rbxmx build.project.json",
+    "build-prod": "npm run compile && npm run add-comment && npm run build-dev",
+    "eslint": "eslint src --max-warnings 0",
     "serve": "rojo serve serve.project.json",
+    "build-dev": "rojo build -o model.rbxmx build.project.json",
     "compile": "rbxtsc --rojo build.project.json",
-    "watch": "rbxtsc -w --rojo serve.project.json"
+    "watch": "rbxtsc -w --rojo serve.project.json",
+    "add-comment": "node scripts/add-comment.js"
   },
   "keywords": [],
   "author": "",
@@ -33,6 +36,7 @@
     "@rbxts/remo": "^1.2.2",
     "@rbxts/ripple": "^0.7.0",
     "@rbxts/roact": "npm:@rbxts/react-ts@^1.0.1",
-    "@rbxts/services": "^1.5.1"
+    "@rbxts/services": "^1.5.1",
+    "@rbxts/t": "^3.1.0"
   }
 }

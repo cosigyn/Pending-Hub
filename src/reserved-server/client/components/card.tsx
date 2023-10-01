@@ -35,8 +35,9 @@ export function Card({ backgroundColor = palette.blue, size, position, anchorPoi
 	}, [hovered, backgroundColor, rem]);
 
 	return (
-		<frame BackgroundTransparency={1} AnchorPoint={anchorPoint} Size={size} Position={position}>
+		<frame key={"centerFrame"} BackgroundTransparency={1} AnchorPoint={anchorPoint} Size={size} Position={position}>
 			<frame
+				key={"cardFrame"}
 				Size={UDim2.fromScale(1, 1)}
 				BackgroundTransparency={cardTransparency}
 				Position={cardPosition.map((y) => new UDim2(0, 0, 0, y))}

@@ -11,7 +11,7 @@ const target = Players.LocalPlayer.WaitForChild("PlayerGui");
 
 root.render(
 	createPortal(
-		<StrictMode>
+		<StrictMode key={"strict"}>
 			<App key="app" />
 		</StrictMode>,
 		target,

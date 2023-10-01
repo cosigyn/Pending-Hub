@@ -5,4 +5,5 @@ export interface PendingObject {
 	Raider: boolean;
 	AccountAge: number;
 	PendTime: number;
+	Rank: string;
 }
